@@ -68,79 +68,79 @@ jobs:
         with:
           name: subatomic-macOS
           path: ./subatomic-macOS.zip
-          
+
   publish-release:
-      name: Publishing CD releases
-      runs-on: ubuntu-latest
-      needs: [linux-build, macOS-build]
+    name: Publishing CD releases
+    runs-on: ubuntu-latest
+    needs: [linux-build, macOS-build]
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
-        
-        - name: Download subatomic-linux.zip
-          uses: actions/download-artifact@v1
-          with:
-            name: subatomic-linux
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-        - name: Download subatomic-macOS.zip
-          uses: actions/download-artifact@v1
-          with:
-            name: subatomic-macOS
+      - name: Download subatomic-linux.zip
+        uses: actions/download-artifact@v1
+        with:
+          name: subatomic-linux
 
-#        - name: Download subatomic-win.zip
-#          uses: actions/download-artifact@v1
-#          with:
-#            name: komodo-win
+      - name: Download subatomic-macOS.zip
+        uses: actions/download-artifact@v1
+        with:
+          name: subatomic-macOS
 
-        - name: Extract branch name
-          shell: bash
-          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-          id: extract_branch
+#      - name: Download subatomic-win.zip
+#        uses: actions/download-artifact@v1
+#        with:
+#          name: komodo-win
 
-        - name: Shortify commit sha
-          shell: bash
-          run: echo "##[set-output name=sha_short;]$(echo ${GITHUB_SHA::7})"
-          id: shortify_commit
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
 
-        - name: Create Release
-          id: create_release
-          uses: actions/create-release@latest
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            tag_name: release_buildv0.${{ github.run_number }}
-            release_name: release_buildv0.${{ github.run_number }}
-            body: |
-              CD Release
-              Github SHA: ${{ github.sha }}
-              Branch: ${{ steps.extract_branch.outputs.branch }}
-              Build number: ${{ github.run_number }}
-              version: v0.${{ github.run_number }}
-            draft: false
-            prerelease: true
+      - name: Shortify commit sha
+        shell: bash
+        run: echo "##[set-output name=sha_short;]$(echo ${GITHUB_SHA::7})"
+        id: shortify_commit
 
-        - name: Upload Linux Release Asset
-          id: upload-linux-release-asset
-          uses: actions/upload-release-asset@latest
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-            asset_path: subatomic-linux/subatomic-linux.zip
-            asset_name: subatomic_linux_v0.${{ github.run_number }}.zip
-            asset_content_type: application/zip
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: release_buildv0.${{ github.run_number }}
+          release_name: release_buildv0.${{ github.run_number }}
+          body: |
+            CD Release
+            Github SHA: ${{ github.sha }}
+            Branch: ${{ steps.extract_branch.outputs.branch }}
+            Build number: ${{ github.run_number }}
+            version: v0.${{ github.run_number }}
+          draft: false
+          prerelease: true
 
-        - name: Upload macOS Release Asset
-          id: upload-macOS-release-asset
-          uses: actions/upload-release-asset@latest
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: subatomic-macOS/subatomic-macOS.zip
-            asset_name: subatomic_macOS_v0.${{ github.run_number }}.zip
-            asset_content_type: application/zip
+      - name: Upload Linux Release Asset
+        id: upload-linux-release-asset
+        uses: actions/upload-release-asset@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: subatomic-linux/subatomic-linux.zip
+          asset_name: subatomic_linux_v0.${{ github.run_number }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS Release Asset
+        id: upload-macOS-release-asset
+        uses: actions/upload-release-asset@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: subatomic-macOS/subatomic-macOS.zip
+          asset_name: subatomic_macOS_v0.${{ github.run_number }}.zip
+          asset_content_type: application/zip
 
 #        - name: Upload Windows Release Asset
 #          id: upload-windows-release-asset
